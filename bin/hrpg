@@ -10,7 +10,7 @@ use Data::Dumper;
 
 # ABSTRACT: Command line inerface to HabitRPG
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 
 if (not @ARGV) {
@@ -202,11 +202,11 @@ hrpg - Command line inerface to HabitRPG
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
-    Usage:
+Usage:
 
     hrpg status                  : Show current HP/XP/GP
     hrpg tasks                   : Show current tasks
@@ -225,6 +225,18 @@ This is a command-line client for the L<HabitRPG|http://habitrpg.com/> service.
 
 When using C<hrpg + task> and C<hrpg - task> any unique shortening of the task
 name can be used.
+
+=head1 SETUP
+
+Create a F<.habitrpgrc> file in your home directory. Place in it
+the following lines:
+
+    [auth]
+    user_id   = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    api_token = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+Replace the long strings of 'x's with the values you obtain by
+going to I<Settings -> API> in the HabitRPG web interface.
 
 =head1 BUGS
 
