@@ -28,4 +28,4 @@ requires:
   warnings: 0
 resources:
   repository: git://github.com/pfenwick/WebService-HabitRPG.git
-version: 0.02
+version: 0.03

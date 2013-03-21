@@ -1,5 +1,18 @@
 Revision history for WebService::HabitRPG
 
+0.03      2013-03-22 00:14:12 Australia/Melbourne
+
+    * BUGFIX: `hrpg status` no longer displays a warning when
+              it can't figure out the user's name (GH #1).
+
+    * FEATURE: `hrpg status` will use the user's facebook name
+               if available (GH #1). Thanks @oneandoneis2.
+
+    * DOCUMENTATION: Install instructions for hrpg.
+
+    * DOCUMENTATION: Fixed typo in README.md (GH #3)
+                     Thanks @taryneast.
+
 0.02      2013-03-21 17:43:12 Australia/Melbourne
 
     * DOCUMENTATION: Added setup instructions to `hrpg`.
