@@ -36,7 +36,6 @@
             "Moo" : "0",
             "WWW::Mechanize" : "0",
             "autodie" : "0",
-            "constant" : "0",
             "perl" : "v5.10.0",
             "strict" : "0",
             "warnings" : "0"
@@ -56,6 +55,6 @@
          "web" : "https://github.com/pfenwick/WebService-HabitRPG"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }
 

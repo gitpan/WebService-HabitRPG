@@ -10,7 +10,7 @@ use Data::Dumper;
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 
 
 if (not @ARGV) {
@@ -41,9 +41,16 @@ unless ($config->{auth}{api_token}) {
     die "Cannot find user credentials in $config_file\n";
 }
 
+my @bonus_constructor_args;
+
+if ($ENV{HRPG_API_BASE}) {
+    @bonus_constructor_args = ( api_base => $ENV{HRPG_API_BASE} );
+}
+
 my $hrpg = WebService::HabitRPG->new(
     api_token => $config->{auth}{api_token},
     user_id   => $config->{auth}{user_id},
+    @bonus_constructor_args,
 );
 
 my $cmd = shift @ARGV;
@@ -77,7 +84,12 @@ given ($cmd) {
 
         say "HP: $user->{stats}{hp} / $user->{stats}{maxHealth}";
         say "XP: $user->{stats}{exp} / $user->{stats}{toNextLevel}";
-        say "GP: $user->{stats}{gp}";
+
+        # Pretty-printing of money
+        my $raw_gp = sprintf("%.4f", $user->{stats}{gp});
+        ($raw_gp =~ /^(?<gp>\d+)\.(?<sp>\d{2})(?<cp>\d{2})$/);
+
+        printf "GP: %d | SP: %2d | CP: %2d\n",$+{gp}, $+{sp}, $+{cp};
     }
 
     when (/^(?<type>habit|todo|daily|reward)$/) {
@@ -209,7 +221,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -263,6 +275,12 @@ the following lines:
 
 Replace the long strings of 'x's with the values you obtain by
 going to I<Settings -> API> in the HabitRPG web interface.
+
+=head1 ENVIRONMENT
+
+If the C<HRPG_API_BASE> environment variable is set, it will be used as
+the API base URL. This may be useful in testing, or when working with
+other servers.
 
 =head1 BUGS
 

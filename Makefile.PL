@@ -32,11 +32,10 @@ my %WriteMakefileArgs = (
     "Moo" => 0,
     "WWW::Mechanize" => 0,
     "autodie" => 0,
-    "constant" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.03",
+  "VERSION" => "0.04",
   "test" => {
     "TESTS" => "t/*.t"
   }
