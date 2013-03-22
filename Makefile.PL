@@ -26,6 +26,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Config::Tiny" => 0,
     "Data::Dumper" => 0,
+    "File::Spec" => 0,
     "JSON::Any" => 0,
     "LWP::Protocol::https" => 0,
     "Method::Signatures" => 0,
@@ -36,7 +37,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.05",
+  "VERSION" => "0.06",
   "test" => {
     "TESTS" => "t/*.t"
   }

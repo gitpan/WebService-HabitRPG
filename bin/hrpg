@@ -5,6 +5,7 @@ use warnings;
 use WebService::HabitRPG;
 use Config::Tiny;
 use Data::Dumper;
+use File::Spec;
 
 # Idonethis detection code.
 my $IDT_VERSION = 0;
@@ -18,7 +19,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.05'; # VERSION
+our $VERSION = '0.06'; # VERSION
 
 
 if (not @ARGV) {
@@ -39,6 +40,11 @@ if (not @ARGV) {
 
     exit 1;
 }
+
+# $progname is just a nicer-formatted version of $0 (our command name)
+
+my $PROGNAME = (File::Spec->splitpath($0))[2];
+$PROGNAME ||= 'hrpg';
 
 # TODO: Support XDG?
 my $config_file = "$ENV{HOME}/.habitrpgrc";
@@ -75,7 +81,7 @@ given ($cmd) {
             say Dumper $hrpg->tasks;
         }
         else {
-            say "Did you mean `$0 dump tasks`?";
+            say "Did you mean `$PROGNAME dump tasks`?";
             exit 1;
         }
     }
@@ -88,7 +94,7 @@ given ($cmd) {
                  || $user->{auth}{local}{username}
                  || 'adventurer';
 
-        say "Hark, $name! (Lv $user->{stats}{lvl})";
+        say "\nHark, $name! (Lv $user->{stats}{lvl})\n";
 
         say "HP: $user->{stats}{hp} / $user->{stats}{maxHealth}";
         say "XP: $user->{stats}{exp} / $user->{stats}{toNextLevel}";
@@ -97,7 +103,7 @@ given ($cmd) {
         my $raw_gp = sprintf("%.4f", $user->{stats}{gp});
         ($raw_gp =~ /^(?<gp>\d+)\.(?<sp>\d{2})(?<cp>\d{2})$/);
 
-        printf "GP: %d | SP: %2d | CP: %2d\n",$+{gp}, $+{sp}, $+{cp};
+        printf "GP: %d | SP: %2d | CP: %2d\n\n",$+{gp}, $+{sp}, $+{cp};
     }
 
     when (/^(?<type>habit|todo|daily|reward)$/) {
@@ -128,7 +134,7 @@ given ($cmd) {
 
     when (/^[+-]$/) {
         my ($task_name, @comment) = @ARGV;
-        die "Usage: $0 $_ task\n" if not $task_name;
+        die "Usage: $PROGNAME $_ task\n" if not $task_name;
 
         my $direction = $_ eq '+' ? 'up' : 'down';
 
@@ -141,13 +147,14 @@ given ($cmd) {
             my $return = $hrpg->updown($task->{id}, $direction);
             say Dumper $return;
 
-            if (@comment and $IDT_VERSION) {
-                system('idone',@comment);
+            if (@comment) {
+                if ($IDT_VERSION) {
+                    system('idone',@comment);
+                }
+                else {
+                    say "Comment ignored, WebService::Idonethis not installed.";
+                }
             }
-            else {
-                say "Comment ignored, WebService::Idonethis not installed.";
-            }
-
         }
         elsif (@candidates == 0) {
             say "No task matching '$task_name' found";
@@ -167,7 +174,7 @@ given ($cmd) {
 
         # TODO: Support rewards (which have 'value')
 
-        my $usage_text = qq{Usage: $0 new [habit|todo|daily] +- "name" ["note"]\n};
+        my $usage_text = qq{Usage: $PROGNAME new [habit|todo|daily] +- "name" ["note"]\n};
 
         unless ($type and $direction and $text  ) { die $usage_text; }
         if     ($type !~ /^(?:habit|todo|daily)/) { die $usage_text; }
@@ -191,7 +198,7 @@ given ($cmd) {
 
     default {
         say "\nSorry, I didn't understand what you were asking for!";
-        say "Try $0 with no arguments for help.\n";
+        say "Try $PROGNAME with no arguments for help.\n";
         exit 1;
     }
 }
@@ -237,7 +244,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

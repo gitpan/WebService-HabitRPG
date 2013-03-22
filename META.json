@@ -30,6 +30,7 @@
          "requires" : {
             "Config::Tiny" : "0",
             "Data::Dumper" : "0",
+            "File::Spec" : "0",
             "JSON::Any" : "0",
             "LWP::Protocol::https" : "0",
             "Method::Signatures" : "0",
@@ -52,10 +53,10 @@
    "resources" : {
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/pfenwick/WebService-HabitRPG.git",
-         "web" : "https://github.com/pfenwick/WebService-HabitRPG"
+         "url" : "git://github.com/pjf/WebService-HabitRPG.git",
+         "web" : "https://github.com/pjf/WebService-HabitRPG"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
 
