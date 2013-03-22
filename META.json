@@ -35,6 +35,7 @@
             "Method::Signatures" : "0",
             "Moo" : "0",
             "WWW::Mechanize" : "0",
+            "WebService::Idonethis" : "0",
             "autodie" : "0",
             "perl" : "v5.10.0",
             "strict" : "0",
@@ -55,6 +56,6 @@
          "web" : "https://github.com/pfenwick/WebService-HabitRPG"
       }
    },
-   "version" : "0.04"
+   "version" : "0.05"
 }
 

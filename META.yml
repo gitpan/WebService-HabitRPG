@@ -21,10 +21,11 @@ requires:
   Method::Signatures: 0
   Moo: 0
   WWW::Mechanize: 0
+  WebService::Idonethis: 0
   autodie: 0
   perl: v5.10.0
   strict: 0
   warnings: 0
 resources:
   repository: git://github.com/pfenwick/WebService-HabitRPG.git
-version: 0.04
+version: 0.05

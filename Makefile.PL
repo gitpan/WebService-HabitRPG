@@ -31,11 +31,12 @@ my %WriteMakefileArgs = (
     "Method::Signatures" => 0,
     "Moo" => 0,
     "WWW::Mechanize" => 0,
+    "WebService::Idonethis" => 0,
     "autodie" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.04",
+  "VERSION" => "0.05",
   "test" => {
     "TESTS" => "t/*.t"
   }

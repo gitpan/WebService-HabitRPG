@@ -1,5 +1,9 @@
 Revision history for WebService::HabitRPG
 
+0.05      2013-03-22 14:18:25 Australia/Melbourne
+
+    * FEATURE: Integration with WebService::Idonethis (GH #3)
+
 0.04      2013-03-22 12:46:54 Australia/Melbourne
 
     * FEATURE: Can specify API base when creating objects.
