@@ -19,7 +19,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 
 if (not @ARGV) {
@@ -142,10 +142,20 @@ given ($cmd) {
 
         if (@candidates == 1) {
             my $task = $candidates[0];
-            say "Updating $task->{text} ($task->{id})";
+            say "Updating $task->{text} ($task->{id})\n";
 
-            my $return = $hrpg->updown($task->{id}, $direction);
-            say Dumper $return;
+            # TODO: We really need an object model behind
+            # this, so we're not digging out hash keys.
+
+            my $stats = $hrpg->user->{stats};
+
+            my $result = $hrpg->updown($task->{id}, $direction);
+
+            # Display new stats.
+
+            printf "HP: %d/%d (%+.2f)\n", $result->{hp}, $stats->{maxHealth},  $result->{hp}  - $stats->{hp}; 
+            printf "XP: %d/%d (%+.2f)\n", $result->{exp},$stats->{toNextLevel},$result->{exp} - $stats->{exp};
+            printf "GP: %.2f (%+.2f)\n",  $result->{gp} ,                      $result->{gp}  - $stats->{gp};
 
             if (@comment) {
                 if ($IDT_VERSION) {
@@ -244,7 +254,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
