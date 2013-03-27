@@ -33,8 +33,9 @@
             "File::Spec" : "0",
             "JSON::Any" : "0",
             "LWP::Protocol::https" : "0",
-            "Method::Signatures" : "0",
+            "Method::Signatures" : "20121201",
             "Moo" : "0",
+            "POSIX" : "0",
             "WWW::Mechanize" : "0",
             "WebService::Idonethis" : "0",
             "autodie" : "0",
@@ -57,6 +58,6 @@
          "web" : "https://github.com/pjf/WebService-HabitRPG"
       }
    },
-   "version" : "0.08"
+   "version" : "0.09"
 }
 

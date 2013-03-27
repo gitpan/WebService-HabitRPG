@@ -29,15 +29,16 @@ my %WriteMakefileArgs = (
     "File::Spec" => 0,
     "JSON::Any" => 0,
     "LWP::Protocol::https" => 0,
-    "Method::Signatures" => 0,
+    "Method::Signatures" => 20121201,
     "Moo" => 0,
+    "POSIX" => 0,
     "WWW::Mechanize" => 0,
     "WebService::Idonethis" => 0,
     "autodie" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.08",
+  "VERSION" => "0.09",
   "test" => {
     "TESTS" => "t/*.t"
   }
