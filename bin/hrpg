@@ -20,7 +20,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 
 if (not @ARGV) {
@@ -137,6 +137,10 @@ given ($cmd) {
     
     when ('history') {
         my ($task_name) = @ARGV;
+
+        if (not $task_name) {
+            die "Usage: $PROGNAME history taskname\n";
+        }
 
         my @tasks = $hrpg->search_tasks($task_name, all => 1);
 
@@ -281,7 +285,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
