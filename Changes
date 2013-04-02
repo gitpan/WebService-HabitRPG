@@ -1,5 +1,34 @@
 Revision history for WebService::HabitRPG
 
+0.11      2013-04-02 22:38:08 Australia/Melbourne
+
+    * DOCS:    hrpg help screen now mentions history command
+               (Thanks @claudinec, GH #20)
+
+    * FEATURE: Added 'hrpg show' to give detailed stats about a task.
+
+    * FEATURE: Added 'hrpg clear daily' to force unchecking of all daily
+               tasks. This is useful if the web server fails to
+               uncheck them, or if you never use the web version. (GH #16)
+
+    * FEATURE: Added --beta switch to 'hrpg', which uses the beta API
+               server.
+
+    * FEATURE: Added --dev switch to 'hrpg', to use localhost:3000 .
+
+    * FEATURE: WS::HRPG::new_task() supports the 'extend' parameter for
+               setting extended attributes.
+
+    * FEATURE: hrpg supports setting extended parameters on task creation.
+
+    * FEATURE: EXPERIMENTAL: _update in WS::HRPG and hrpg. This uses the
+               PUT API, and allows for setting arbitrary attributes via
+               the API.
+
+    * FEATURE: EXPERIMENTAL: [auth-beta] and [auth-dev] sections may be
+               added to the ~/.habitrpgrc file, and their details will
+               be used when using the --beta or --dev switches.
+
 0.10      2013-03-27 15:54:27 Australia/Melbourne
 
     * BUGFIX:  'hrpg history' with no args gives a more useful error message.

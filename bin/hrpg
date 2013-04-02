@@ -20,7 +20,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 
 if (not @ARGV) {
@@ -32,6 +32,9 @@ if (not @ARGV) {
     hrpg habit|daily|reward|todo : Show tasks of current type
     hrpg new                     : Create new task 'hrpg new' for help.
     hrpg [+-] task [comment]     : Increment/decrement a task or habit
+    hrpg history task            : Show the history of a task
+    hrpg show task               : Show detailed info about a task
+    hrpg clear daily             : Uncheck all daily tasks
 
     Debugging commands:
     
@@ -62,6 +65,37 @@ my @bonus_constructor_args;
 
 if ($ENV{HRPG_API_BASE}) {
     @bonus_constructor_args = ( api_base => $ENV{HRPG_API_BASE} );
+}
+
+# Options handling.
+# We could use Getopt::Long, but it gets confused by + and -
+# being commands.
+
+if ($ARGV[0] eq "--beta") { 
+    shift @ARGV;
+    @bonus_constructor_args = ( api_base => 'https://beta.habitrpg.com/api/v1' );
+
+    # If we see auth details for beta, add those to our bonus options.
+
+    if ($config->{'auth-beta'}) {
+        push(@bonus_constructor_args,
+            api_token => $config->{'auth-beta'}{api_token},
+            user_id   => $config->{'auth-beta'}{user_id},
+        );
+    }
+}
+elsif ($ARGV[0] eq "--dev") {
+    shift @ARGV;
+    @bonus_constructor_args = ( api_base => 'http://localhost:3000/api/v1' );
+
+    # If we see auth details for beta, add those to our bonus options.
+
+    if ($config->{'auth-dev'}) {
+        push(@bonus_constructor_args,
+            api_token => $config->{'auth-dev'}{api_token},
+            user_id   => $config->{'auth-dev'}{user_id},
+        );
+    }
 }
 
 my $hrpg = WebService::HabitRPG->new(
@@ -134,6 +168,28 @@ given ($cmd) {
             $last_type = $task->{type};
         }
     }
+
+    when ('show') {
+
+        # TODO: Integrate history/show search routines.
+
+        my ($task_name) = @ARGV;
+
+        if (not $task_name) {
+            die "Usage: $PROGNAME show taskname\n";
+        }
+
+        my @tasks = $hrpg->search_tasks($task_name, all => 1);
+
+        if (not @tasks) {
+            die "Sorry, no tasks found!\n";
+        }
+
+        foreach my $task (@tasks) {
+            say Dumper $task;
+        }
+    }
+        
     
     when ('history') {
         my ($task_name) = @ARGV;
@@ -210,12 +266,12 @@ given ($cmd) {
     }
 
     when ('new') {
-        my ($type, $direction, $text, $note, $value) = @ARGV;
+        my ($type, $direction, $text, $note, $value, @rest) = @ARGV;
         my ($up, $down) = (0, 0);
 
         # TODO: Support rewards (which have 'value')
 
-        my $usage_text = qq{Usage: $PROGNAME new [habit|todo|daily] +- "name" ["note"]\n};
+        my $usage_text = qq{Usage: $PROGNAME new [habit|todo|daily] +- "name" ["note"] [value]\n};
 
         unless ($type and $direction and $text  ) { die $usage_text; }
         if     ($type !~ /^(?:habit|todo|daily)/) { die $usage_text; }
@@ -232,9 +288,44 @@ given ($cmd) {
             note => $note,
             up   => $up,
             down => $down,
+            extend => { @rest },
         );
 
         say Dumper $result;
+    }
+
+    when ('clear') {
+        my (@args) = @ARGV;
+
+        if ($args[0] ne 'daily') {
+            die "Only '$PROGNAME clear daily' is supported.\n";
+        }
+
+        my $dailies = $hrpg->tasks("daily");
+
+        foreach my $task (@$dailies) {
+            if ($task->{completed}) {
+                say "Clearing $task->{text}...";
+
+                # \0 converts into magic JSON false
+                $hrpg->_update($task->{id}, { completed => \0 });
+            }
+        }
+
+        say "All daily tasks cleared!\n";
+    }
+    
+    # EXPERIMENTAL
+    when ('_update') {
+        my ($task, @args) = @ARGV;
+
+        my @candidates = $hrpg->search_tasks($task);
+
+        if (@candidates != 1) {
+            die "Found ".@candidates." matche(s). There can be only one.\n";
+        }
+
+        say Dumper $hrpg->_update($candidates[0]{id}, { @args } );
     }
 
     default {
@@ -285,7 +376,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
@@ -297,6 +388,7 @@ Usage:
     hrpg new                     : Create new task 'hrpg new' for help.
     hrpg [+-] task               : Increment/decrement a task or habit
     hrpg history task            : Show the history of a task
+    hrpg show task               : Show detailed info about a task
 
     Debugging commands:
     
@@ -308,8 +400,13 @@ Usage:
 This is a command-line client for the L<HabitRPG|http://habitrpg.com/>
 service.  Use C<hrpg> with no arguments for help.
 
-When using C<hrpg + task> and C<hrpg - task> any unique shortening of the
-task name can be used.
+When using the C<+> and C<-> commands, any unique shortening of a
+task name can be used. When using C<history> and C<show>, all
+tasks matching the name specified will be displayed.
+
+The C<--beta> switch may be provided as a first argument to use
+the beta API server.  The C<--dev> switch may be used to use
+C<http://localhost:3000/api/v1> as the server.
 
 =head1 SETUP
 
@@ -341,7 +438,16 @@ the following lines:
 Replace the long strings of 'x's with the values you obtain by
 going to I<Settings -> API> in the HabitRPG web interface.
 
-=head1 INTEGRATION WITH IDONETHIS
+You may also have an C<[auth-dev]> and/or C<[auth-beta]> section,
+if you use a development or beta server and have different credentials
+there.  Most users will never need this.
+
+=head1 EXPERIMENTAL FEATURES
+
+These features are considered experimental, and may change in
+the future.
+
+=head2 INTEGRATION WITH IDONETHIS
 
 If you have L<WebService::Idonethis> installed, then you can add
 items to your done-list at the same time as you complete habits.
@@ -358,6 +464,15 @@ you can use switches like C<-l>.
 
 If L<WebService::Idonethis> is not installed, any additional arguments
 to habit reporting are ignored.
+
+=head2 CUSTOM ATTRIBUTES
+
+Additional arguments after the I<value> to C<hrpg new> are considered
+to be custom arguments that are sent to the API.  These must be
+key/value pairs, which are encoded into JSON and passed directly
+as-is, without any sanity checking. These can allow tasks to be
+created that may hook into new features on the server, or which contain
+additional information which is not used by the main HabitRPG servers.
 
 =head1 ENVIRONMENT
 
