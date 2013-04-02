@@ -17,6 +17,7 @@ requires:
   Config::Tiny: 0
   Data::Dumper: 0
   File::Spec: 0
+  IO::Handle: 0
   JSON::Any: 0
   LWP::Protocol::https: 0
   Method::Signatures: 20121201
@@ -27,7 +28,8 @@ requires:
   autodie: 0
   perl: v5.10.0
   strict: 0
+  utf8::all: 0
   warnings: 0
 resources:
   repository: git://github.com/pjf/WebService-HabitRPG.git
-version: 0.11
+version: 0.12

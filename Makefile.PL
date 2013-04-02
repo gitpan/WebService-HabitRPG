@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
     "Config::Tiny" => 0,
     "Data::Dumper" => 0,
     "File::Spec" => 0,
+    "IO::Handle" => 0,
     "JSON::Any" => 0,
     "LWP::Protocol::https" => 0,
     "Method::Signatures" => 20121201,
@@ -34,12 +35,13 @@ my %WriteMakefileArgs = (
     "WebService::Idonethis" => 0,
     "autodie" => 0,
     "strict" => 0,
+    "utf8::all" => 0,
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
     "Test::More" => 0
   },
-  "VERSION" => "0.11",
+  "VERSION" => "0.12",
   "test" => {
     "TESTS" => "t/*.t"
   }
