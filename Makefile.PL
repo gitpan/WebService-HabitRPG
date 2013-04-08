@@ -22,6 +22,7 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "WebService::HabitRPG",
   "PREREQ_PM" => {
+    "Carp" => 0,
     "Config::Tiny" => 0,
     "Data::Dumper" => 0,
     "File::Spec" => 0,
@@ -31,17 +32,19 @@ my %WriteMakefileArgs = (
     "Method::Signatures" => 20121201,
     "Moo" => 0,
     "POSIX" => 0,
+    "Scalar::Util" => 0,
     "WWW::Mechanize" => 0,
-    "WebService::Idonethis" => 0,
     "autodie" => 0,
+    "constant" => 0,
     "strict" => 0,
     "utf8::all" => 0,
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
+    "JSON::XS::Boolean" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.14",
+  "VERSION" => "0.15",
   "test" => {
     "TESTS" => "t/*.t"
   }

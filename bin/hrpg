@@ -13,6 +13,10 @@ use utf8::all;
 # Idonethis detection code.
 my $IDT_VERSION = 0;
 
+use constant HRPG_REPEAT_MAP => qw(
+    su m t w th f s
+);
+
 eval {
     require WebService::Idonethis; 
     $IDT_VERSION = WebService::Idonethis->VERSION;
@@ -22,7 +26,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.14'; # VERSION
+our $VERSION = '0.15'; # VERSION
 
 
 if (not @ARGV) {
@@ -40,6 +44,7 @@ if (not @ARGV) {
 
     Debugging commands:
     
+    hrpg version                  : Show version information
     hrpg dump                     : Dump entire user info
     hrpg dump tasks               : Dump task info
 
@@ -101,14 +106,22 @@ elsif ($ARGV[0] eq "--dev") {
 }
 
 my $hrpg = WebService::HabitRPG->new(
-    api_token => $config->{auth}{api_token},
-    user_id   => $config->{auth}{user_id},
+    api_token  => $config->{auth}{api_token},
+    user_id    => $config->{auth}{user_id},
+    keep_alive => $config->{connection}{keep_alive} // 1,
     @bonus_constructor_args,
 );
 
 my $cmd = shift @ARGV;
 
 given ($cmd) {
+
+    when ('version') {
+        $::VERSION ||= "Unreleased";
+        say "hrpg version                 : $::VERSION";
+        say "WebService::HabitRPG version : ", $hrpg->VERSION;
+    }
+
     when ('dump')   { 
 
         my ($option) = @ARGV;
@@ -149,8 +162,8 @@ given ($cmd) {
         my $tasks = $hrpg->tasks($+{type});
 
         foreach my $task (@$tasks) {
-            next if $task->{type} eq 'todo' and $task->{completed};
-            say format_task($task);
+            next if $task->type eq 'todo' and $task->completed;
+            say $task->format_task;
         }
     }
 
@@ -160,14 +173,14 @@ given ($cmd) {
         my $last_type = "";
 
         foreach my $task (@$tasks) {
-            next if $task->{type} eq 'reward';
-            next if $task->{type} eq 'todo' and $task->{completed};
+            next if $task->type eq 'reward';
+            next if $task->type eq 'todo' and $task->completed;
 
             if ($task->{type} ne $last_type) {
                 say "\n === \u$task->{type} ===\n";
             }
-            say format_task($task);
-            $last_type = $task->{type};
+            say $task->format_task;
+            $last_type = $task->type;
         }
     }
 
@@ -188,7 +201,7 @@ given ($cmd) {
         }
 
         foreach my $task (@tasks) {
-            say Dumper $task;
+            say Dumper $task->_raw;
         }
     }
         
@@ -209,7 +222,7 @@ given ($cmd) {
         foreach my $task (@tasks) {
             say "\n = ", $task->{text}, " =\n";
 
-            foreach my $hist ( @{ $task->{history} }) {
+            foreach my $hist ( @{ $task->_raw->{history} }) {
 
                 # Substr is to work around lefnire/habitrpg#716
                 # This will break in a few thousand years time.
@@ -234,7 +247,7 @@ given ($cmd) {
 
         if (@candidates == 1) {
             my $task = $candidates[0];
-            say "Updating $task->{text} (x$qty) ($task->{id})\n";
+            say "Updating $task->{text} (x$qty) (",$task->id,")\n";
 
             # TODO: We really need an object model behind
             # this, so we're not digging out hash keys.
@@ -244,7 +257,7 @@ given ($cmd) {
             my $result;
 
             foreach (1..$qty) {
-                $result = $hrpg->updown($task->{id}, $direction);
+                $result = $hrpg->updown($task->id, $direction);
             }
 
             # Display new stats.
@@ -269,7 +282,7 @@ given ($cmd) {
             say "Did you mean...";
 
             foreach my $task (@candidates) {
-                say "* $task->{text} ($task->{id})";
+                say "* $task->{text} ($task->id)";
             }
         }
     }
@@ -317,7 +330,7 @@ given ($cmd) {
                 say "Clearing $task->{text}...";
 
                 # \0 converts into magic JSON false
-                $hrpg->_update($task->{id}, { completed => \0 });
+                $hrpg->_update($task->id, { completed => \0 });
             }
         }
 
@@ -376,37 +389,6 @@ given ($cmd) {
     }
 }
 
-# TODO: Move these to the API module? Maybe?
-
-# Formats todo/daily tasks with checkmarks. Everything else gets bullets.
-
-sub format_task {
-    my ($task) = @_;
-
-    my $formatted = "";
-
-    if ($task->{type} =~ /^(?:daily|todo)$/) {
-        if ($task->{completed}) {
-            $formatted .= '[X] ';
-        }
-        else {
-            $formatted .= '[ ] ';
-        }
-    }
-    elsif ($task->{type} eq 'habit') {
-        $formatted .= ' ';
-        $formatted .= $task->{up}   ? "+"  : " "  ;
-        $formatted .= $task->{down} ? "- " : "  " ;
-    }
-    else {
-        $formatted .= "  * ";
-    }
-
-    $formatted .= $task->{text};
-
-    return $formatted;
-}
-
 __END__
 
 =pod
@@ -417,7 +399,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
@@ -433,6 +415,7 @@ Usage:
 
     Debugging commands:
     
+    hrpg version                 : Show version information
     hrpg dump                    : Dump entire user info
     hrpg dump tasks              : Dump task info
 
@@ -482,6 +465,13 @@ going to I<Settings -> API> in the HabitRPG web interface.
 You may also have an C<[auth-dev]> and/or C<[auth-beta]> section,
 if you use a development or beta server and have different credentials
 there.  Most users will never need this.
+
+On some systems, the default-behaviour of using keep-alives (which
+normally improve performance) causes troubles.  You can disable
+keep-alives by adding the following to your F<.habitrpgrc>:
+
+    [connection]
+    keep_alive = 0
 
 =head1 EXPERIMENTAL FEATURES
 
