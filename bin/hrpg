@@ -26,7 +26,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.15'; # VERSION
+our $VERSION = '0.16'; # VERSION
 
 
 if (not @ARGV) {
@@ -282,7 +282,7 @@ given ($cmd) {
             say "Did you mean...";
 
             foreach my $task (@candidates) {
-                say "* $task->{text} ($task->id)";
+                say "* $task->{text} (",$task->id,")";
             }
         }
     }
@@ -399,7 +399,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 SYNOPSIS
 
