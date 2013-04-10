@@ -24,6 +24,7 @@ requires:
   LWP::Protocol::https: 0
   Method::Signatures: 20121201
   Moo: 0
+  Mozilla::CA: 0
   POSIX: 0
   Scalar::Util: 0
   WWW::Mechanize: 0
@@ -35,4 +36,4 @@ requires:
   warnings: 0
 resources:
   repository: git://github.com/pjf/WebService-HabitRPG.git
-version: 0.16
+version: 0.17

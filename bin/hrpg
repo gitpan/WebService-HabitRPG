@@ -26,7 +26,7 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.16'; # VERSION
+our $VERSION = '0.17'; # VERSION
 
 
 if (not @ARGV) {
@@ -310,6 +310,7 @@ given ($cmd) {
             note => $note,
             up   => $up,
             down => $down,
+            value => $value,
             extend => { @rest },
         );
 
@@ -399,7 +400,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =head1 SYNOPSIS
 

@@ -31,6 +31,7 @@ my %WriteMakefileArgs = (
     "LWP::Protocol::https" => 0,
     "Method::Signatures" => 20121201,
     "Moo" => 0,
+    "Mozilla::CA" => 0,
     "POSIX" => 0,
     "Scalar::Util" => 0,
     "WWW::Mechanize" => 0,
@@ -44,7 +45,7 @@ my %WriteMakefileArgs = (
     "JSON::XS::Boolean" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.16",
+  "VERSION" => "0.17",
   "test" => {
     "TESTS" => "t/*.t"
   }
