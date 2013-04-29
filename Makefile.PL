@@ -34,6 +34,7 @@ my %WriteMakefileArgs = (
     "Mozilla::CA" => 0,
     "POSIX" => 0,
     "Scalar::Util" => 0,
+    "Try::Tiny" => 0,
     "WWW::Mechanize" => 0,
     "autodie" => 0,
     "constant" => 0,
@@ -45,7 +46,7 @@ my %WriteMakefileArgs = (
     "JSON::XS::Boolean" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.17",
+  "VERSION" => "0.18",
   "test" => {
     "TESTS" => "t/*.t"
   }

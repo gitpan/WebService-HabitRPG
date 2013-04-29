@@ -4,7 +4,7 @@
       "Paul Fenwick <pjf@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -40,6 +40,7 @@
             "Mozilla::CA" : "0",
             "POSIX" : "0",
             "Scalar::Util" : "0",
+            "Try::Tiny" : "0",
             "WWW::Mechanize" : "0",
             "autodie" : "0",
             "constant" : "0",
@@ -64,6 +65,6 @@
          "web" : "https://github.com/pjf/WebService-HabitRPG"
       }
    },
-   "version" : "0.17"
+   "version" : "0.18"
 }
 

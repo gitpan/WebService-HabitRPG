@@ -8,14 +8,11 @@ use Data::Dumper;
 use File::Spec;
 use IO::Handle;
 use POSIX qw(strftime);
+use Try::Tiny;
 use utf8::all;
 
 # Idonethis detection code.
 my $IDT_VERSION = 0;
-
-use constant HRPG_REPEAT_MAP => qw(
-    su m t w th f s
-);
 
 eval {
     require WebService::Idonethis; 
@@ -26,10 +23,10 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.17'; # VERSION
+our $VERSION = '0.18'; # VERSION
 
 
-if (not @ARGV) {
+if (not @ARGV or $ARGV[0] eq 'help') {
     say q{
     Usage:
 
@@ -257,10 +254,35 @@ given ($cmd) {
             my $result;
 
             foreach (1..$qty) {
-                $result = $hrpg->updown($task->id, $direction);
+
+                # Kludge to catch upstream errors from dropping items.
+                # pjf/WebService-HabitRPG#32 lefire/habitrpg#815
+
+                # TODO: Remove once lefnire/habitrpg#815 is resolved.
+
+                try {
+                    $result = $hrpg->updown($task->id, $direction);
+                }
+                catch {
+                    # TODO: Figure out if we actually got a dropped item,
+                    # or if upstream is just dead or broken.
+
+                    say "Looks like an item dropped! "
+                        ."Check http://habitrpg.com/ to see what it is.";
+                    $result = undef;
+                };
             }
 
-            # Display new stats.
+            # If our last call resulted in a drop-error, then we have
+            # to go get our user data to see what actually happened.
+
+            if (not defined $result) {
+                # Grab our current user stats.
+                $result = $hrpg->user->{stats};
+            }
+
+            # Display stats delta.
+            # TODO: Detect level ups and handle appropriately.
 
             printf "HP: %d/%d (%+.2f)\n", $result->{hp}, $stats->{maxHealth},  $result->{hp}  - $stats->{hp}; 
             printf "XP: %d/%d (%+.2f)\n", $result->{exp},$stats->{toNextLevel},$result->{exp} - $stats->{exp};
@@ -400,7 +422,7 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 
@@ -413,6 +435,7 @@ Usage:
     hrpg [+-][num] task          : Increment/decrement a task or habit
     hrpg history task            : Show the history of a task
     hrpg show task               : Show detailed info about a task
+    hrpg clear daily              : Uncheck all daily tasks
 
     Debugging commands:
     
@@ -449,7 +472,7 @@ You might want to put that last line in your F<~/.bashrc> file.
 
 You can then install C<hrpg> and related utilities with:
 
-    cpanm hrpg
+    cpanm WebService::HabitRPG
 
 =head2 Configuration
 
