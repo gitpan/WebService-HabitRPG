@@ -23,27 +23,27 @@ eval {
 
 # ABSTRACT: hrpg - Command line interface to HabitRPG
 
-our $VERSION = '0.18'; # VERSION
+our $VERSION = '0.19'; # VERSION
 
 
 if (not @ARGV or $ARGV[0] eq 'help') {
     say q{
     Usage:
 
-    hrpg status                   : Show current HP/XP/GP
-    hrpg tasks                    : Show current tasks
-    hrpg habit|daily|reward|todo  : Show tasks of current type
-    hrpg new                      : Create new task 'hrpg new' for help.
-    hrpg [+-][num] task [comment] : Increment/decrement a task or habit
-    hrpg history task             : Show the history of a task
-    hrpg show task                : Show detailed info about a task
-    hrpg clear daily              : Uncheck all daily tasks
+    hrpg status                           : Show current HP/XP/GP
+    hrpg tasks [search]                   : Show current tasks
+    hrpg habit|daily|reward|todo [search] : Show tasks of current type
+    hrpg new                              : Create new task 'hrpg new' for help.
+    hrpg [+-][num] [task]                 : Increment/decrement a task or habit
+    hrpg history [task]                   : Show the history of a task
+    hrpg clear daily                      : Uncheck all daily tasks
 
     Debugging commands:
     
-    hrpg version                  : Show version information
-    hrpg dump                     : Dump entire user info
-    hrpg dump tasks               : Dump task info
+    hrpg version                          : Show version information
+    hrpg show [task]                      : Show detailed info about a task
+    hrpg dump                             : Dump entire user info
+    hrpg dump tasks                       : Dump task info
 
     For more documentation, use `perldoc hrpg`.
     };
@@ -102,6 +102,20 @@ elsif ($ARGV[0] eq "--dev") {
     }
 }
 
+# Add tags if in config file.
+
+if ($config->{tags}) {
+    push @bonus_constructor_args, tags => $config->{tags};
+};
+
+# Figure out our tag prefix character.
+
+if ($config->{config}{tag_prefix}) {
+    push @bonus_constructor_args, tag_prefix => $config->{config}{tag_prefix};
+}
+
+# Build our HRPG object
+
 my $hrpg = WebService::HabitRPG->new(
     api_token  => $config->{auth}{api_token},
     user_id    => $config->{auth}{user_id},
@@ -156,7 +170,15 @@ given ($cmd) {
     }
 
     when (/^(?<type>habit|todo|daily|reward)$/) {
-        my $tasks = $hrpg->tasks($+{type});
+        my ($search) = @ARGV;
+        my $tasks;
+
+        if (not $search) {
+            $tasks = $hrpg->tasks($+{type});
+        }
+        else {
+            $tasks = [ $hrpg->search_tasks($search) ];
+        }
 
         foreach my $task (@$tasks) {
             next if $task->type eq 'todo' and $task->completed;
@@ -165,7 +187,16 @@ given ($cmd) {
     }
 
     when ('tasks') {
-        my $tasks = $hrpg->tasks();
+
+        my ($search) = @ARGV;
+        my $tasks;
+
+        if (not $search) {
+            $tasks = $hrpg->tasks();
+        }
+        else {
+            $tasks = [ $hrpg->search_tasks($search) ];
+        }
 
         my $last_type = "";
 
@@ -422,26 +453,26 @@ hrpg - hrpg - Command line interface to HabitRPG
 
 =head1 VERSION
 
-version 0.18
+version 0.19
 
 =head1 SYNOPSIS
 
 Usage:
 
-    hrpg status                  : Show current HP/XP/GP
-    hrpg tasks                   : Show current tasks
-    hrpg habit|daily|reward|todo : Show tasks of current type
-    hrpg new                     : Create new task 'hrpg new' for help.
-    hrpg [+-][num] task          : Increment/decrement a task or habit
-    hrpg history task            : Show the history of a task
-    hrpg show task               : Show detailed info about a task
-    hrpg clear daily              : Uncheck all daily tasks
+    hrpg status                           : Show current HP/XP/GP
+    hrpg tasks [search]                   : Show current tasks
+    hrpg habit|daily|reward|todo [search] : Show tasks of current type
+    hrpg new                              : Create new task 'hrpg new' for help.
+    hrpg [+-][num] [task]                 : Increment/decrement a task or habit
+    hrpg history [task]                   : Show the history of a task
+    hrpg clear daily                      : Uncheck all daily tasks
 
     Debugging commands:
     
-    hrpg version                 : Show version information
-    hrpg dump                    : Dump entire user info
-    hrpg dump tasks              : Dump task info
+    hrpg version                          : Show version information
+    hrpg show [task]                      : Show detailed info about a task
+    hrpg dump                             : Dump entire user info
+    hrpg dump tasks                       : Dump task info
 
 =head1 DESCRIPTION
 
@@ -501,6 +532,37 @@ keep-alives by adding the following to your F<.habitrpgrc>:
 
 These features are considered experimental, and may change in
 the future.
+
+=head2 TAGS
+
+As there is no API for tags yet, you need to include them in your
+configuration file if you wish to be able to use them. The syntax is:
+
+    [tags]
+    study = 96681445-0e8a-43f7-85ac-9b7f1cb130ee
+    home  = 1b832ec1-a87c-4c11-9b54-e1c24c27313f
+    qs    = 63bc4f62-aaa4-4207-887b-95254bcbcfff
+
+To find out the uuid of a tag, use `hrpg show` on a task having
+that tag, and examine the resulting data structure. Once the upstream
+tag API is finished, this process will be obsolete.
+
+Tags can be used in any search by prefixing them with the 
+I<tag prefix character>, which defaults to caret (^).  For
+example:
+
+    hrpg daily ^work      # Show daily tasks tagged with 'work'
+    hrpg tasks ^code      # Show all tasks tagged with 'code'
+
+If you don't like the tag prefix character, you can change it
+in your configuration file. Simply add:
+
+    [config]
+    tag_prefix = @
+
+This might be handy if you tend to use location tags. You could write:
+C<hrpg daily @home> and C<hrpg daily @work> to show daily tasks
+with the I<home> and I<work> tags respectively.
 
 =head2 INTEGRATION WITH IDONETHIS
 

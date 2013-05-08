@@ -1,5 +1,20 @@
 Revision history for WebService::HabitRPG
 
+0.19      2013-05-08 15:31:02 Australia/Melbourne
+
+    * FEATURE:  `hrpg tasks` and `hrpg [daily|todo|habit]` now support
+                an optional search parameter.
+
+    * FEATURE:  Experimental tag support. Add a [tags] section to your
+                ~/.habitrpgrc file with tag => uuid pairs. All searches
+                starting with a '^' will match all tasks with that
+                tag.  (Eg: `hrpg daily ^home`)
+
+    * FEATURE:  Experimental tag prefix support. Add a [config]
+                section to your ~/.habitrpg file and a
+                `tag_prefix = whatever` section if you don't like the
+                default tag character of '^'.
+
 0.18      2013-04-29 14:52:14 Australia/Melbourne
 
     * BUGFIX:   Detect drops from upstream and direct user to web
